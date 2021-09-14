@@ -1,14 +1,15 @@
-output "id" {
-  description = "ID of the created example"
-  value       = module.this.enabled ? module.this.id : null
+output "kubernetes_service-jhub-proxy-public_lb" {
+  value = data.kubernetes_service.jhub.status.0.load_balancer.0.ingress.0.hostname
 }
 
-output "example" {
-  description = "Example output"
-  value       = module.this.enabled ? local.example : null
+output "kubectl_update_command" {
+  description = "Run this command to update the kubectl config"
+  value       = "aws eks --region ${var.region} update-kubeconfig --name ${var.eks_cluster_id}"
 }
 
-output "random" {
-  description = "Stable random number for this example"
-  value       = module.this.enabled ? join("", random_integer.example[*].result) : null
+output "daskhub_values" {
+  description = "Values files passed to the daskhub helm chart"
+  value = [
+    abspath("${path.module}/helm_charts/daskhub/secrets.yaml"),
+  ]
 }

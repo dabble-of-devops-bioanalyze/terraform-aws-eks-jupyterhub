@@ -5,7 +5,7 @@
 #
 
 # Name of this project
-name: terraform-example-module
+name: terraform-aws-eks-jupyterhub
 
 # Logo for this project
 #logo: docs/logo.png
@@ -15,12 +15,12 @@ license: "APACHE2"
 
 # Copyrights
 copyrights:
-  - name: "Cloud Posse, LLC"
-    url: "https://cloudposse.com"
+  - name: "Dabble of DevOps, SCorp"
+    url: "https://www.dabbleofdevops.com"
     year: "2020"
 
 # Canonical GitHub repo
-github_repo: cloudposse/terraform-example-module
+github_repo: dabble-of-devops-biodeploy/terraform-aws-eks-jupyterhub
 
 # Badges to display
 badges:
@@ -36,9 +36,51 @@ badges:
 
 # List any related terraform modules that this module may be used with or that this module depends on.
 related:
+  - name: terraform-aws-eks-autoscaling
+    description: Terraform module to provision an Autoscaling EKS Cluster. Acts as a wrapper around cloudposse/terraform-aws-eks-cluster and cloudposse/terraform-aws-eks-node-groups  
+    url: https://github.com/dabble-of-devops-biodeploy/terraform-aws-eks-autoscaling
+  - name: terraform-aws-eks-cluster
+    description: Terraform module to deploy an AWS EKS Cluster. 
+    url: https://github.com/cloudposse/terraform-aws-eks-workers
+  - name: terraform-aws-eks-node-group
+    description: Terraform module to provision an EKS Node Group 
+    url: https://github.com/cloudposse/terraform-aws-eks-node-group
+  - name: Zero to Kubernetes
+    description: |
+      JupyterHub allows users to interact with a computing environment through a webpage. As most devices have access to a web browser, JupyterHub makes it is easy to provide and standardize the computing environment for a group of people (e.g., for a class of students or an analytics team).
+
+      This project will help you set up your own JupyterHub on a cloud/on-prem k8s environment and leverage its scalable nature to support a large group of users. Thanks to Kubernetes, we are not tied to a specific cloud provider.
+    url: https://zero-to-jupyterhub.readthedocs.io/
+  - name: Dask Gateway
+    description: |
+      Dask Gateway provides a secure, multi-tenant server for managing Dask clusters. It allows users to launch and use Dask clusters in a shared, centrally managed cluster environment, without requiring users to have direct access to the underlying cluster backend (e.g. Kubernetes, Hadoop/YARN, HPC Job queues, etc…).
+    url: https://gateway.dask.org/
+  - name: DaskHub
+    description: |
+      This chart provides a multi-user, Dask-Gateway enabled JupyterHub. It combines the JupyterHub and Dask Gateway helm charts.
+    url: https://github.com/dask/helm-chart/blob/main/daskhub/README.md
+  - name: Dask
+    description: |
+      Dask is a flexible library for parallel computing in Python.
+    url: https://docs.dask.org/en/latest/
+  - name: terraform-aws-ec2-autoscale-group
+    description: Terraform module to provision Auto Scaling Group and Launch Template
+      on AWS
+    url: https://github.com/cloudposse/terraform-aws-ec2-autoscale-group
+  - name: terraform-aws-ec2-instance
+    description: Terraform module for providing a general purpose EC2 instance
+    url: https://github.com/cloudposse/terraform-aws-ec2-instance
+  - name: terraform-aws-ec2-instance-group
+    description: Terraform module for provisioning multiple general purpose EC2 hosts
+      for stateful applications
+    url: https://github.com/cloudposse/terraform-aws-ec2-instance-group
   - name: "terraform-null-label"
     description: "Terraform module designed to generate consistent names and tags for resources. Use terraform-null-label to implement a strict naming convention."
     url: "https://github.com/cloudposse/terraform-null-label"
+
+# Short description of this project
+description: |
+  Terraform module to deploy a multiuser Jupyterhub + Dask Cluster on an existing EKS cluster using the DaskHub helm chart. It deploys the DaskHub Helm chart, and optionally configures SSL for you if you are using a domain name on AWS hosted with Route53.
 
 # List any resources helpful for someone to get started. For example, link to the hashicorp documentation or AWS documentation.
 references:
@@ -55,10 +97,6 @@ references:
     description: "The required_version setting can be used to constrain which versions of the Terraform CLI can be used with your configuration"
     url: "https://www.terraform.io/docs/configuration/terraform.html#specifying-a-required-terraform-version"
 
-# Short description of this project
-description: |-
-  This is `terraform-example-module` project provides all the scaffolding for a typical well-built Cloud Posse module. It's a template repository you can
-  use when creating new repositories.
 
 # Introduction to the project
 #introduction: |-
@@ -72,16 +110,24 @@ usage: |-
   (which tests and deploys the example on AWS), see [test](test).
 
   ```hcl
-  module "example" {
-    source = "https://github.com/cloudposse/terraform-example-module.git?ref=master"
-    example = "Hello world!"
+  module "eks" {
+    source = "dabble-of-devops-biodeploy/terraform-aws-eks-jupyterhub"
+
+    region = var.region
+    vpc_id = var.vpc_id
+    subnet_ids = var.subnet_ids
+
+    oidc_provider_enabled = true
+    cluster_encryption_config_enabled = true
+    
+    context = module.this.context
   }
   ```
 
 # Example usage
 examples: |-
   Here is an example of using this module:
-  - [`examples/complete`](https://github.com/cloudposse/terraform-example-module/) - complete example of using this module
+  - [`examples/complete`](https://github.com/dabble-of-devops-biodeploy/terraform-aws-eks-jupyterhub/) - complete example of using this module
 
 # How to get started quickly
 #quickstart: |-
@@ -94,5 +140,5 @@ include:
 
 # Contributors to this project
 contributors:
-  - name: "Erik Osterman"
-    github: "osterman"
+  - name: "Jillian Rowe"
+    github: "jerowe"
