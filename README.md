@@ -31,7 +31,7 @@ Terraform module to deploy a multiuser Jupyterhub + Dask Cluster on an existing 
 
 ---
 
-This project is part of the ["BioHub"](https://www.dabbleofdevops.com/biohub) project, which aims to make High Performance Compute Architecture accessible to everyone.
+This project is part of the ["BioDeploy"](https://www.dabbleofdevops.com/biohub) project, which aims to make High Performance Compute Architecture accessible to everyone.
 
 
 It's 100% Open Source and licensed under the [APACHE2](LICENSE).
