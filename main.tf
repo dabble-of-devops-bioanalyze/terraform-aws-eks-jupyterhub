@@ -181,7 +181,7 @@ resource "null_resource" "jhub_release_update" {
   depends_on = [
     helm_release.jhub,
     aws_route53_record.jhub,
-    module.merge_yamls
+    module.merge_values
   ]
   triggers = {
     always_run = timestamp()

@@ -21,7 +21,7 @@ output "daskhub_helm_upgrade_command" {
     # sleep ${var.daskhub_update_sleep}
     helm upgrade --install ${var.daskhub_release_name} dask/daskhub \
      -n ${var.daskhub_namespace} \
-      --values ${module.merged_values.helm_values_merged_file}
+      --values ${module.merge_values.helm_values_merged_file}
     EOT
 }
 
