@@ -192,10 +192,10 @@ resource "null_resource" "jhub_release_update" {
     helm repo update
     # Wait a bit, sometimes the DNS record takes a few minutes to propogate
     echo "This command may take some time. Please wait and do not exit the screen"
-    # sleep ${var.daskhub_update_sleep}
+    sleep ${var.daskhub_update_sleep}
     helm upgrade --install ${var.daskhub_release_name} dask/daskhub \
      -n ${var.daskhub_namespace} \
-      --values ${module.merged_values.helm_values_merged_file}
+      --values ${module.merge_values.helm_values_merged_file}
     EOT
     environment = {
       AWS_REGION = var.region
