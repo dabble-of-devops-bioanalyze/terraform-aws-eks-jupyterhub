@@ -115,7 +115,7 @@ data "aws_elb" "jhub" {
 }
 
 data "template_file" "https" {
-  count = var.enable_ssl ? 1 : 0
+  count = var.enable_ssl == true ? 1 : 0
   depends_on = [
     helm_release.jhub,
   ]
@@ -128,14 +128,13 @@ data "template_file" "https" {
 }
 
 resource "local_file" "rendered_https" {
-  count = var.enable_ssl ? 1 : 0
+  count = var.enable_ssl == true ? 1 : 0
   depends_on = [
     data.template_file.https[0]
   ]
   content  = data.template_file.https[0].rendered
   filename = "${var.daskhub_helm_values_dir}/https.yaml"
 }
-
 
 resource "aws_route53_record" "jhub" {
   count = var.enable_ssl ? 1 : 0
@@ -155,11 +154,34 @@ resource "aws_route53_record" "jhub" {
   }
 }
 
+locals {
+  daskhub_values_upgrade = tolist(distinct(
+    compact(flatten([
+      [
+        [
+          abspath(local_file.rendered_https[0].filename)
+        ],
+        [for s in var.daskhub_values_files : abspath(s)],
+        [for s in var.daskhub_values_upgrade_files : abspath(s)]
+      ]
+    ]))
+  ))
+}
+
+module "merge_values" {
+  source            = "dabble-of-devops-biodeploy/merge-values/helm"
+  version           = "0.0.1"
+  context           = module.this.context
+  helm_values_dir   = var.daskhub_helm_values_dir
+  helm_values_files = local.daskhub_values_upgrade
+}
+
 resource "null_resource" "jhub_release_update" {
   count = var.enable_ssl ? 1 : 0
   depends_on = [
     helm_release.jhub,
-    aws_route53_record.jhub
+    aws_route53_record.jhub,
+    module.merge_yamls
   ]
   triggers = {
     always_run = timestamp()
@@ -170,35 +192,13 @@ resource "null_resource" "jhub_release_update" {
     helm repo update
     # Wait a bit, sometimes the DNS record takes a few minutes to propogate
     echo "This command may take some time. Please wait and do not exit the screen"
-    sleep ${var.daskhub_update_sleep} 
+    # sleep ${var.daskhub_update_sleep}
     helm upgrade --install ${var.daskhub_release_name} dask/daskhub \
      -n ${var.daskhub_namespace} \
-      --values ${var.daskhub_helm_values_dir}/secrets.yaml \
-     %{for value_file in var.daskhub_values_upgrade_files~}
-      --values ${value_file} \
-     %{endfor~}
-      --values ${var.daskhub_helm_values_dir}/https.yaml
+      --values ${module.merged_values.helm_values_merged_file}
     EOT
     environment = {
       AWS_REGION = var.region
     }
   }
-}
-
-output "daskhub_helm_upgrade_command" {
-  description = "Helm upgrade command"
-  value       = <<EOT
-    helm repo add dask https://helm.dask.org/
-    helm repo update
-    # Wait a bit, sometimes the DNS record takes a few minutes to propogate
-    echo "This command may take some time. Please wait and do not exit the screen"
-    sleep ${var.daskhub_update_sleep} 
-    helm upgrade --install ${var.daskhub_release_name} dask/daskhub \
-     -n ${var.daskhub_namespace} \
-      --values ${var.daskhub_helm_values_dir}/secrets.yaml \
-     %{for value_file in var.daskhub_values_upgrade_files~}
-      --values ${value_file} \
-     %{endfor~}
-      --values ${var.daskhub_helm_values_dir}/https.yaml
-    EOT
 }
