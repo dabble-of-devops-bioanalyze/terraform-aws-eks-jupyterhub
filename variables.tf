@@ -33,6 +33,7 @@ variable "daskhub_release_name" {
 
 variable "enable_ssl" {
   description = "Setup https for the daskhub cluster. Requires a domain named purchased on AWS with an ACM certificate"
+  type        = bool
   default     = false
 }
 
