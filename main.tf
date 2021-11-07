@@ -194,6 +194,7 @@ resource "null_resource" "jhub_release_update" {
     echo "This command may take some time. Please wait and do not exit the screen"
     sleep ${var.daskhub_update_sleep}
     helm upgrade --install ${var.daskhub_release_name} dask/daskhub \
+    --version ${var.daskhub_version} \
      -n ${var.daskhub_namespace} \
       --values ${module.merge_values.helm_values_merged_file}
     EOT
